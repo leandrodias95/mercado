@@ -2,6 +2,7 @@ package com.mercado.rest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -27,61 +28,39 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/mercado/api/clientes")
 public class ClienteController {
-	
+
 	private final ClienteRepository repository;
-	
+
 	public ClienteController(ClienteRepository repository) {
 		this.repository = repository;
 	}
 
-	@PostMapping(value="insert")
-	@ResponseStatus(HttpStatus.CREATED) //resposta da minha requisição
-	public ResponseEntity<Object> salvar(@RequestBody @Valid Cliente cliente, BindingResult result){ //BindingResult extend erros do validator
-		if(result.hasErrors()){
-			Map<String, String> errors = new HashMap<>(); ///associa chave aos valores
-			for(FieldError error: result.getFieldErrors()) {
-				errors.put(error.getField(),error.getDefaultMessage());	
-			}
-			return ResponseEntity.badRequest().body(errors);
-		}
-		Cliente clienteSalvo = repository.save(cliente);
-		return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
+	@PostMapping(value = "insert")
+	@ResponseStatus(HttpStatus.CREATED) // resposta da minha requisição
+	public Cliente salvar(@RequestBody @Valid Cliente cliente) { 
+		return repository.save(cliente); 
 	}
-	
+
 	@GetMapping("{id}")
 	public Cliente acharPorId(@PathVariable Long id) {
-		return repository.findById(id).orElseThrow(()-> new  ResponseStatusException(HttpStatus.NOT_FOUND));
+		return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
 	}
-	
+
 	@DeleteMapping("{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void deletarCliente(@PathVariable Long id) {
-	 repository.findById(id).map(cliente->{ //map transforma um elemento em outro
-		repository.delete(cliente);
-		return cliente; 
-	 })
-	 .orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		repository.findById(id).map(cliente -> { // map transforma um elemento em outro
+			repository.delete(cliente);
+			return cliente;
+		}).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cliente não encontrado"));
 	}
-	
+
 	@PutMapping("{id}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
-	public ResponseEntity<Object> atualizar(@PathVariable Long id, @RequestBody @Valid Cliente clienteAtualizar, BindingResult result) {
-		if(!repository.findById(id).isPresent()) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-		}
-		else if(repository.findById(id).isPresent() && result.hasErrors() ) {
-			Map<String, String> errors = new HashMap<>();
-			for(FieldError error: result.getFieldErrors()) {
-				errors.put(error.getField(), error.getDefaultMessage());
-			}
-			return ResponseEntity.badRequest().body(errors);
-		}
+	public void atualizar(@PathVariable Long id, @RequestBody @Valid Cliente clienteAtualizar) {
 		repository.findById(id).map(cliente->{
-			clienteAtualizar.setId(cliente.getId());
 			repository.save(clienteAtualizar);
-			return ResponseEntity.noContent().build();
-		});
-		return ResponseEntity.noContent().build() ; 
+			return cliente;
+		}).orElseThrow(()-> new ResponseStatusException(HttpStatus.NOT_FOUND,"Cliente não encontrado"));
 	}
-	
 }
