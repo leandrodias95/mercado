@@ -1,4 +1,4 @@
-package config;
+package com.mercado.config;
 
 import java.util.Locale;
 
@@ -15,7 +15,7 @@ public class InternacionalizacaoConfig {
 	public MessageSource messageSoruce() {
 		ReloadableResourceBundleMessageSource bundleMessageSource =  new ReloadableResourceBundleMessageSource();
 		bundleMessageSource.setBasename("classpath:messages");
-		bundleMessageSource.setDefaultEncoding("ISO-8859-1");
+		bundleMessageSource.setDefaultEncoding("UTF-8");
 		bundleMessageSource.setDefaultLocale(Locale.getDefault());
 		return bundleMessageSource;
 	}
