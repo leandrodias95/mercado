@@ -19,7 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfiguration {
 
 	@Autowired
-	SecurityFilter securiyFilter;
+	SecurityFilter securityFilter;
 	
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -39,7 +39,7 @@ public class SecurityConfiguration {
 				.requestMatchers(HttpMethod.GET, "/mercado/api/produtos/getProcuarPorProdutoPorNomeCliente/**").hasRole("USER")
 				.anyRequest().authenticated()
 				)
-				.addFilterBefore(securiyFilter, UsernamePasswordAuthenticationFilter.class)
+				.addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
 				.build();
 	} 
 	
